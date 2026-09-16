@@ -1,11 +1,12 @@
 <?php
+
 /**
- * ScandiPWA_CatalogGraphQl
- *
  * @category    ScandiPWA
- * @package     ScandiPWA_Cache
- * @author      Ilja Lapkovskis <ilja@scandiweb.com | info@scandiweb.com>
- * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @package     ScandiPWA_PersistedQuery
+ * @copyright   Copyright © 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * See LICENSE for license details.
  */
 
 namespace ScandiPWA\PersistedQuery\Plugin;
@@ -21,30 +22,22 @@ class InvalidatePQCache
      * @var bool
      */
     private $cacheState;
-    
+
     /**
-     * @var TypeListInterface
-     */
-    protected $typeList;
-    
-    /**
-     * @param StateInterface    $cacheState
      * @param TypeListInterface $typeList
+     * @param StateInterface $cacheState
      */
     public function __construct(
-        TypeListInterface $typeList,
+        private readonly TypeListInterface $typeList,
         StateInterface $cacheState
-    )
-    {
+    ) {
         $this->cacheState = $cacheState->isEnabled(strtolower(ResponseCache::CACHE_TAG));
-        $this->typeList = $typeList;
     }
-    
+
     /**
      * @param AbstractAction $subject
      * @param AbstractAction $result
      * @return AbstractAction
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterExecute(AbstractAction $subject, AbstractAction $result)

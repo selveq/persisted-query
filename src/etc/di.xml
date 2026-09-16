@@ -1,25 +1,28 @@
 <?xml version="1.0"?>
+
 <!--
 /**
- * ScandiPWA - Progressive Web App for Magento
- *
- * Copyright © Scandiweb, Inc. All rights reserved.
+ * @category    ScandiPWA
+ * @package     ScandiPWA_PersistedQuery
+ * @copyright   Copyright © Scandiweb, Inc. All rights reserved.
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
  * See LICENSE for license details.
- *
- * @license OSL-3.0 (Open Software License ("OSL") v. 3.0)
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\GraphQl\Controller\GraphQl">
-        <plugin name="scandipwa_persisted_query" type="ScandiPWA\PersistedQuery\Plugin\PersistedQuery" />
-    </type>
-    <type name="ScandiPWA\GraphQl\Controller\GraphQl">
-        <plugin name="scandipwa_persisted_query" type="ScandiPWA\PersistedQuery\Plugin\PersistedQuery" />
+        <plugin name="scandipwa_persisted_query"
+            type="ScandiPWA\PersistedQuery\Plugin\PersistedQuery" />
     </type>
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="scandipwa_pq_flush" xsi:type="object">ScandiPWA\PersistedQuery\Console\Command\PersistedQueryFlushCommand</item>
+                <item name="scandipwa_pq_flush" xsi:type="object">
+                    ScandiPWA\PersistedQuery\Console\Command\PersistedQueryFlushCommand
+                </item>
             </argument>
         </arguments>
     </type>
@@ -31,9 +34,17 @@
         </arguments>
     </type>
     <type name="Magento\Catalog\Model\Indexer\Category\Product\Action\Full">
-        <plugin name="invalidate_pq_response_cache" type="ScandiPWA\PersistedQuery\Plugin\InvalidatePQCache" />
+        <plugin name="invalidate_pq_response_cache"
+            type="ScandiPWA\PersistedQuery\Plugin\InvalidatePQCache" />
     </type>
-    
+
+    <!-- optional constructor arguments are not auto-resolved by the ObjectManager, so the parser this class shares with core has to be named explicitly -->
+    <type name="ScandiPWA\PersistedQuery\Query\QueryProcessor">
+        <arguments>
+            <argument name="queryParser" xsi:type="object">Magento\Framework\GraphQl\Query\QueryParser</argument>
+        </arguments>
+    </type>
+
     <type name="ScandiPWA\PersistedQuery\Console\Command\PersistedQueryFlushCommand">
         <arguments>
             <argument name="query" xsi:type="object">ScandiPWA\PersistedQuery\Cache\Query\Proxy</argument>

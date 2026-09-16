@@ -1,62 +1,45 @@
 <?php
+
 /**
- * ScandiPWA_PersistedQuery
- *
  * @category    ScandiPWA
  * @package     ScandiPWA_PersistedQuery
- * @author      Ilja Lapkovskis <ilja@scandiweb.com | info@scandiweb.com>
- * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Copyright © 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * See LICENSE for license details.
  */
 
 namespace ScandiPWA\PersistedQuery\Setup;
 
+use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Config\Data\ConfigData;
 use Magento\Framework\Config\File\ConfigFilePool;
 use Magento\Framework\Setup\ConfigOptionsListInterface;
 use Magento\Framework\Setup\Option\TextConfigOption;
-use Magento\Framework\App\DeploymentConfig;
 
-/**
- * Deployment configuration options needed for Backend module
- *
- */
 class ConfigOptionsList implements ConfigOptionsListInterface
 {
-    /**
-     * Input key for the persisted query host
-     */
-    const INPUT_KEY_PQ_HOST = 'pq-host';
-    
-    /**
-     * Input key for the persisted query host
-     */
-    const INPUT_KEY_PQ_SCHEME = 'pq-scheme';
-    
-    /**
-     * Input key for the persisted query port
-     */
-    const INPUT_KEY_PQ_PORT = 'pq-port';
-    
-    /**
-     * Input key for the persisted query database
-     */
-    const INPUT_KEY_PQ_DATABASE = 'pq-database';
-    
-    /**
-     * Input key for the persisted query password
-     */
-    const INPUT_KEY_PQ_PASSWORD = 'pq-password';
-    
-    /**
-     * Default value for pq-scheme
-     */
-    const INPUT_DEFAULT_PQ_SCHEME = 'tcp';
-    
-    /**
-     * Config path
-     */
-    const CONFIG_PATH_PERSISTED_QUERY = 'cache/persisted-query/redis';
-    
+    /** Input key for the persisted query host */
+    public const string INPUT_KEY_PQ_HOST = 'pq-host';
+
+    /** Input key for the persisted query host */
+    public const string INPUT_KEY_PQ_SCHEME = 'pq-scheme';
+
+    /** Input key for the persisted query port */
+    public const string INPUT_KEY_PQ_PORT = 'pq-port';
+
+    /** Input key for the persisted query database */
+    public const string INPUT_KEY_PQ_DATABASE = 'pq-database';
+
+    /** Input key for the persisted query password */
+    public const string INPUT_KEY_PQ_PASSWORD = 'pq-password';
+
+    /** Default value for pq-scheme */
+    public const string INPUT_DEFAULT_PQ_SCHEME = 'tcp';
+
+    /** Config path */
+    public const string CONFIG_PATH_PERSISTED_QUERY = 'cache/persisted-query/redis';
+
     /**
      * {@inheritdoc}
      */
@@ -95,12 +78,17 @@ class ConfigOptionsList implements ConfigOptionsListInterface
             )
         ];
     }
-    
+
+    /**
+     * prefix a Redis setting name with the module's deployment-config path.
+     * @param string $path
+     * @return string
+     */
     protected function prefixerHelper(string $path)
     {
         return self::CONFIG_PATH_PERSISTED_QUERY . '/' . $path;
     }
-    
+
     /**
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -108,57 +96,67 @@ class ConfigOptionsList implements ConfigOptionsListInterface
     public function createConfig(array $options, DeploymentConfig $deploymentConfig)
     {
         $configData = new ConfigData(ConfigFilePool::APP_ENV);
-        
+
         if (isset($options[self::INPUT_KEY_PQ_HOST])) {
             $configData->set($this->prefixerHelper('host'), $options[self::INPUT_KEY_PQ_HOST]);
         }
-        
+
         if (isset($options[self::INPUT_KEY_PQ_PORT])) {
             $configData->set($this->prefixerHelper('port'), $options[self::INPUT_KEY_PQ_PORT]);
         }
-        
+
         if (isset($options[self::INPUT_KEY_PQ_DATABASE])) {
             $configData->set($this->prefixerHelper('database'), $options[self::INPUT_KEY_PQ_DATABASE]);
         }
-        
+
         if (isset($options[self::INPUT_KEY_PQ_SCHEME])) {
             $configData->set($this->prefixerHelper('scheme'), $options[self::INPUT_KEY_PQ_SCHEME]);
         }
-        
+
         if (isset($options[self::INPUT_KEY_PQ_PASSWORD])) {
             $configData->set($this->prefixerHelper('password'), $options[self::INPUT_KEY_PQ_PASSWORD]);
         }
-        
+
         return [$configData];
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function validate(array $options, DeploymentConfig $deploymentConfig)
     {
         $errors = [];
-        if (isset($options[self::INPUT_KEY_PQ_HOST]) &&
-            !preg_match('/^[a-zA-Z0-9\-_\.]+$/', $options[self::INPUT_KEY_PQ_HOST])) {
+        if (
+            isset($options[self::INPUT_KEY_PQ_HOST]) &&
+            !preg_match('/^[a-zA-Z0-9\-_.]+$/', $options[self::INPUT_KEY_PQ_HOST])
+        ) {
             $errors[] = "Invalid persisted query redis host";
         }
-        if (isset($options[self::INPUT_KEY_PQ_PORT]) &&
-            !preg_match('/^[0-9]+$/', $options[self::INPUT_KEY_PQ_PORT])) {
+        if (
+            isset($options[self::INPUT_KEY_PQ_PORT]) &&
+            !preg_match('/^[0-9]+$/', $options[self::INPUT_KEY_PQ_PORT])
+        ) {
             $errors[] = "Invalid persisted query redis port";
         }
-        if (isset($options[self::INPUT_KEY_PQ_DATABASE]) &&
-            !preg_match('/^[0-9]+$/', $options[self::INPUT_KEY_PQ_DATABASE])) {
+        if (
+            isset($options[self::INPUT_KEY_PQ_DATABASE]) &&
+            !preg_match('/^[0-9]+$/', $options[self::INPUT_KEY_PQ_DATABASE])
+        ) {
             $errors[] = "Invalid persisted query redis database";
         }
-        if (isset($options[self::INPUT_KEY_PQ_SCHEME]) &&
-            !in_array($options[self::INPUT_KEY_PQ_SCHEME], ['tcp', 'udp'])) {
+        if (
+            isset($options[self::INPUT_KEY_PQ_SCHEME]) &&
+            !in_array($options[self::INPUT_KEY_PQ_SCHEME], ['tcp', 'udp'])
+        ) {
             $errors[] = "Invalid persisted query redis scheme";
         }
-        if (isset($options[self::INPUT_KEY_PQ_PASSWORD]) &&
-            !preg_match('/^\S+$/', $options[self::INPUT_KEY_PQ_PASSWORD])) {
+        if (
+            isset($options[self::INPUT_KEY_PQ_PASSWORD]) &&
+            !preg_match('/^\S+$/', $options[self::INPUT_KEY_PQ_PASSWORD])
+        ) {
             $errors[] = "Persisted query redis password can not be empty";
         }
-        
+
         return $errors;
     }
 }

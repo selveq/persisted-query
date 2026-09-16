@@ -1,23 +1,29 @@
 <?php
+
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @category    ScandiPWA
+ * @package     ScandiPWA_PersistedQuery
+ * @copyright   Copyright © Magento, Inc. All rights reserved.
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * See LICENSE for license details.
  */
+
 declare(strict_types=1);
 
 namespace ScandiPWA\PersistedQuery\Query;
 
+use Exception;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\Visitor;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\GraphQl\Query\Fields as CoreFields;
+use Psr\Log\LoggerInterface;
 
-/**
- * This class holds a list of all queried fields and is used to enable performance optimization for schema loading.
- */
 class Fields extends CoreFields
 {
     /**
@@ -26,14 +32,29 @@ class Fields extends CoreFields
     private $fieldsUsedInQuery = [];
 
     /**
-     * Set Query for extracting list of fields.
-     *
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * resolved on demand: a constructor here would break the parent's own QueryParser wiring
+     * @return LoggerInterface
+     */
+    private function getLogger(): LoggerInterface
+    {
+        if ($this->logger === null) {
+            $this->logger = ObjectManager::getInstance()->get(LoggerInterface::class);
+        }
+
+        return $this->logger;
+    }
+
+    /**
      * @param string $query
      * @param array|null $variables
-     *
      * @return void
      */
-    public function setQuery($query, array $variables = null)
+    public function setQuery($query, ?array $variables = null)
     {
         $queryFields = [];
 
@@ -58,8 +79,12 @@ class Fields extends CoreFields
             if (isset($variables)) {
                 $queryFields = array_merge($queryFields, $this->extractVariables($variables));
             }
-        } catch (\Exception $e) {
-            // If a syntax error is encountered do not collect fields
+        } catch (Exception $e) {
+            // the query processor surfaces the real parse error later, so collecting nothing is enough here
+            $this->getLogger()->debug(
+                'PersistedQuery: field extraction skipped, query failed to parse',
+                ['exception' => $e]
+            );
         }
 
         if (
@@ -67,7 +92,7 @@ class Fields extends CoreFields
             || isset($queryFields['__schema'])
             || isset($queryFields['__type'])
         ) {
-            // It must be possible to query any fields during introspection query
+            // an introspection query must reach every field, so nothing is pruned for it
             $queryFields = [];
         }
 
@@ -75,10 +100,7 @@ class Fields extends CoreFields
     }
 
     /**
-     * Get list of fields used in GraphQL query.
-     *
-     * This method is stateful and relies on the query being set with setQuery.
-     *
+     * stateful: relies on setQuery() having run for this request
      * @return string[]
      */
     public function getFieldsUsedInQuery()
@@ -87,10 +109,17 @@ class Fields extends CoreFields
     }
 
     /**
-     * Extract and return list of all used fields in GraphQL query's variables
-     *
+     * reset the slot this class redeclares, which the parent's own _resetState() cannot see
+     * @return void
+     */
+    public function _resetState(): void
+    {
+        // without this the query fields of one request leak into the next under RoadRunner or Swoole
+        $this->fieldsUsedInQuery = [];
+    }
+
+    /**
      * @param array $variables
-     *
      * @return string[]
      */
     private function extractVariables(array $variables): array
@@ -101,7 +130,11 @@ class Fields extends CoreFields
                 // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                 $fields = array_merge($fields, $this->extractVariables($value));
             }
-            $fields[$key] = $key;
+
+            // a list index can never name a GraphQL field, so collecting it only widens the schema
+            if (is_string($key)) {
+                $fields[$key] = $key;
+            }
         }
 
         return $fields;

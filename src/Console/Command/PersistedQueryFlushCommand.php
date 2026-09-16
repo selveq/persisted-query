@@ -1,15 +1,15 @@
 <?php
+
 /**
- * ScandiPWA_PersistedQuery
- *
  * @category    ScandiPWA
  * @package     ScandiPWA_PersistedQuery
- * @author      Ilja Lapkovskis <ilja@scandiweb.com | info@scandiweb.com>
- * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Copyright © 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * See LICENSE for license details.
  */
 
 namespace ScandiPWA\PersistedQuery\Console\Command;
-
 
 use ScandiPWA\PersistedQuery\Cache\Query;
 use Symfony\Component\Console\Command\Command;
@@ -19,43 +19,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PersistedQueryFlushCommand extends Command
 {
     /**
-     * @var Query
-     */
-    private $query;
-    
-    /**
-     * PersistedQueryFlushCommand constructor.
-     * @param Query       $query
+     * @param Query $query
      * @param string|null $name
      */
     public function __construct(
-        Query $query,
-        string $name = null
-    )
-    {
-        $this->query = $query;
+        private readonly Query $query,
+        ?string $name = null
+    ) {
         parent::__construct($name);
     }
-    
+
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function configure()
     {
         $this->setName('scandipwa:pq:flush')
             ->setDescription('Flush persisted query storage(Redis)');
-        
+
         parent::configure();
     }
-    
+
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->query->clean()) {
             $output->writeln('Persisted query caches flushed (redis + varnish)');
         }
+
+        return Command::SUCCESS;
     }
-    
 }

@@ -1,88 +1,86 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 4.0.0
 
-## [Unreleased]
+Forked from `scandipwa/persisted-query` 3.1.1. Module name and namespace are unchanged, and the package replaces `scandipwa/persisted-query` at every version, so it installs as a drop-in replacement.
 
-## [2.1.0] - 2019-10-28
-### Changed
+- Magento 2.4.9 and PHP 8.3 support.
+- Registrations store the query text instead of its AST, under `pq:query:<hash>` and `pq:ttl:<hash>` keys that expire after 30 days; run `bin/magento scandipwa:pq:flush` once after upgrading.
+- A `PUT` must carry the theme's hash of the query: `400` on a mismatch, `409` for a different query under an existing hash, and it never executes the query.
+- Query text is bounded at 64 KB; a larger registration answers `413`.
+- `SW-cache-age` is clamped to a configurable ceiling, and `0` means do not cache.
+- Uncacheable queries are answered with `no-store` and no `X-Pool`.
+- Nesting depth and core's pre-execution guards now apply on the persisted path.
+- Malformed registrations answer `502` and unknown or invalid hashes `410`, never a stack trace.
+- Array `GET` parameters, a non-numeric `SW-cache-age` and a malformed `PUT` body no longer fatal.
+- Default TTL, maximum TTL and hash verification are configurable under Stores > Configuration.
+- Dependencies declared: `magento/module-graph-ql-cache`, `magento/module-backend`, `magento/module-config`.
+
+## 2.1.0
+
 - Replace predis/predis with `colinmollenhour/credis`, that supports `PhpRedis` module for high load.
 
-## [1.5.0] - 2019-10-25
-### Changed
+## 1.5.0
+
 - Replace predis/predis with `colinmollenhour/credis`, that supports `PhpRedis` module for high load.
 
-## [2.0.2] - 2019-10-23
-### Changed
+## 2.0.2
+
 - Fix argument value partial escaping
 
-## [1.4.8] - 2019-10-23
-### Changed
+## 1.4.8
+
 - Fix argument value partial escaping
 
-## [2.0.1] - 2019-10-18
-### Changed
-- Fix float parameter handling 
+## 2.0.1
 
-## [1.4.7] - 2019-10-18
-### Changed
-- Fix float parameter handling 
+- Fix float parameter handling
 
-## [2.0.0] - 2019-07-29
-### Changed
+## 1.4.7
+
+- Fix float parameter handling
+
+## 2.0.0
+
 - Magento 2.3.2 adoption
 - Fixes
 
-## [1.4.3] - 2019-07-26
-### Added
+## 1.4.3
+
 - verbose error messages for Varnish flush requests
 
-## [1.3.0] - 2019-05-23
-### Added
--  Event observer for`bin/magento cache:flush` to trigger persisted query varnish storage flush (happens also on 
-setup:upgrade)
-- `bin/magento scandipwa:pq:flush` - command for flushing query document (redis) storage (does not happen on 
-setup:upgrade)
+## 1.3.0
 
-### Removed
-- `persisted_query` cache is unlisted in CLI and Admin cache control menu
-
-### Changed
+- Event observer for`bin/magento cache:flush` to trigger persisted query varnish storage flush (happens also on setup:upgrade)
+- `bin/magento scandipwa:pq:flush` - command for flushing query document (redis) storage (does not happen on setup:upgrade)
+- Removed: `persisted_query` cache is unlisted in CLI and Admin cache control menu
 - File restructuring improving readability
 - Updating README.md & CHANGELOG.md
 - Update Magento module version to fit release tag
 - Minor CS improvements
 
-## [1.2.0] - 2019-05-07
-### Added
+## 1.2.0
+
 - flush option for persisted query redis
 - cache control for PQ and PQ responses
 - flushing logic for varnish and redis
-
-### Removed
-- version tag in composer.json  
-
-### Changed    
-- Update README.md    
+- Removed: version tag in composer.json
+- Update README.md
 - improve code styling and comments
 
-## [1.1.1] - 2019-03-20
-### Changed
+## 1.1.1
+
 - `--pq-scheme` is not setting `tcp` by default.
 - Move CHANGELOG.md to the root of the module
 - README.md
 
-## [1.1.0] - 2019-03-20
-### Added
+## 1.1.0
+
 - Added custom flags to `setup:config:set` CLI command
+- Changed README.md
 
-### Changed
-- Changed README.md 
+## 1.0.0
 
-## [1.0.0] - 2019-03-08
-### Added
 - Initial commit
 - predis/predis as dependency
 - persisted query support

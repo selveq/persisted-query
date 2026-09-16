@@ -1,15 +1,15 @@
 <?php
+
 /**
- * ScandiPWA_PersistedQuery
- *
  * @category    ScandiPWA
  * @package     ScandiPWA_PersistedQuery
- * @author      Ilja Lapkovskis <ilja@scandiweb.com | info@scandiweb.com>
- * @copyright   Copyright (c) 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Copyright © 2019 Scandiweb, Ltd (https://scandiweb.com)
+ * @copyright   Modifications © Selveq. All rights reserved.
+ * @license     OSL-3.0 (Open Software License ("OSL") v. 3.0)
+ * See LICENSE for license details.
  */
 
 namespace ScandiPWA\PersistedQuery\Cache\Observer;
-
 
 use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\Event\Observer;
@@ -22,26 +22,27 @@ class FlushAllPQ implements ObserverInterface
      * @var bool
      */
     private $cacheState;
-    
+
     /**
-     * @var ResponseCache
+     * @param StateInterface $cacheState
+     * @param ResponseCache $responseCache
      */
-    private $responseCache;
-    
     public function __construct(
         StateInterface $cacheState,
-        ResponseCache $responseCache
-    )
-    {
+        private readonly ResponseCache $responseCache
+    ) {
         $this->cacheState = $cacheState->isEnabled(strtolower(ResponseCache::CACHE_TAG));
-        $this->responseCache = $responseCache;
     }
-    
+
+    /**
+     * flush the persisted query response cache when the cache type is enabled.
+     * @param Observer $observer
+     * @return void
+     */
     public function execute(Observer $observer)
     {
         if ($this->cacheState) {
             $this->responseCache->clean();
         }
     }
-    
 }
