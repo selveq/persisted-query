@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1
+
+- The configured password and username reach Credis, so persisted queries work against a Redis or Valkey with `requirepass` instead of failing with `NOAUTH Authentication required`.
+
 ## 4.0.0
 
 Forked from `scandipwa/persisted-query` 3.1.1. Module name and namespace are unchanged, and the package replaces `scandipwa/persisted-query` at every version, so it installs as a drop-in replacement.

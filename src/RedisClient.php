@@ -84,7 +84,10 @@ class RedisClient
             $redisConfig['port'],
             10,
             '',
-            $redisConfig['database']
+            $redisConfig['database'],
+            // Credis authenticates on connect; without these a requirepass Redis answers NOAUTH to every call
+            $redisConfig['password'] ?? null,
+            $redisConfig['username'] ?? null
         );
     }
 
