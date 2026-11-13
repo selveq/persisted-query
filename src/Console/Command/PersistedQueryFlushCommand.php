@@ -45,9 +45,15 @@ class PersistedQueryFlushCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->query->clean()) {
-            $output->writeln('Persisted query caches flushed (redis + varnish)');
+        if (!$this->query->clean()) {
+            $output->writeln(
+                '<error>persisted query caches were not flushed: the Varnish purge or the Redis flush failed</error>'
+            );
+
+            return Command::FAILURE;
         }
+
+        $output->writeln('Persisted query caches flushed (redis + varnish)');
 
         return Command::SUCCESS;
     }

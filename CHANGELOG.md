@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+
+- `bin/magento scandipwa:pq:flush` reports a failed Varnish purge or Redis flush and exits 1, instead of printing nothing and exiting 0.
+
 ## 4.0.1
 
 - The configured password and username reach Credis, so persisted queries work against a Redis or Valkey with `requirepass` instead of failing with `NOAUTH Authentication required`.
