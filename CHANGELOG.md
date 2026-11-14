@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.3
+
+- The module's own answers (`410` for an unknown hash, the other modelled errors and the `201` registration) carry `Cache-Control: no-store`, so the browser no longer keeps the `410` and hands it back to the retry that follows a registration.
+
 ## 4.0.2
 
 - `bin/magento scandipwa:pq:flush` reports a failed Varnish purge or Redis flush and exits 1, instead of printing nothing and exiting 0.

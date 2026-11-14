@@ -486,6 +486,8 @@ class PersistedQuery
     {
         $this->response->setStatusCode($statusCode);
         $this->response->setHeader('Content-Type', 'application/json');
+        // Chrome keeps a 410 with no freshness fresh forever, so the retry after registering would read it back
+        $this->response->setHeader('Cache-Control', 'no-store', true);
         $this->response->setBody(json_encode($body));
 
         return $this->response;
